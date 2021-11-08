@@ -105,13 +105,17 @@ function AuthContextProvider(props) {
     }
 
     auth.logoutUser = async function () {
-        const resp = await api.logoutUser();
-        if (resp.status === 200) {
-            authReducer({
-                type: AuthActionType.LOGOUT_USER,
-                payload: null
-            })
-            history.push("/");
+        try {
+            const resp = await api.logoutUser();
+            if (resp.status === 200) {
+                authReducer({
+                    type: AuthActionType.LOGOUT_USER,
+                    payload: null
+                })
+                history.push("/");
+            }
+        } catch (err){
+            console.log(err);
         }
     }
 
