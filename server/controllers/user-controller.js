@@ -78,12 +78,47 @@ registerUser = async (req, res) => {
     }
 }
 
+loginUser = async (request, result) => {
+    try {
+        const {email, password} = request.body;
+        console.log(email);
+        console.log(password);
+        if (!email && !password) {
+            return result.status(400).json({errorMessage: "Please enter valid values for both."});
+        }
+        else if (!email) {
+            return result.status(400).json({errorMessage: "Please enter a valid email."});
+        } else if (!password) {
+            return result.status(400).json({errorMessage: "Please enter a valid password."});
+        }
+        const user = await User.findOne({email: email});
+        if (!user) {
+            return result.status(400).json({success: false, errorMessage: "Invalid User Login."});
+        } else if (!bcrypt.compareSync(password, user.passwordHash)) {
+            return result.status(400).json({success: false, errorMessage: "Invalid Credentials."});
+        }
+        const tok = auth.signToken(user);
+        await result.cookie("token", tok, {httpOnly: true, secure: true, sameSite: "none"}).status(200).json({
+            success: true,
+            user: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email
+            }
+        }).send();
+    } catch (err) {
+        console.log(err);
+        console.log("Cock and ball torture")
+    }
+}
+
 logoutUser = async (request, result) => {
-    return res.clearCookie("token").status(200).json({success: true})
+    await result.clearCookie("token").status(200).send();
 }
 
 module.exports = {
     getLoggedIn,
     registerUser,
-    logoutUser
+    logoutUser,
+    loginUser
 }

@@ -40,6 +40,12 @@ function AuthContextProvider(props) {
                     loggedIn: true
                 })
             }
+            case AuthActionType.LOGIN_USER: {
+                return setAuth({
+                    user: payload.user,
+                    loggedIn: true
+                })
+            }
             case AuthActionType.LOGOUT_USER: {
                 return setAuth({
                     user: null,
@@ -76,6 +82,25 @@ function AuthContextProvider(props) {
             })
             history.push("/");
             store.loadIdNamePairs();
+        }
+    }
+
+    auth.loginUser = async function (loginForm, state) {
+        try {
+            const resp = await api.loginUser(loginForm);
+            if (resp.status === 200) {
+                authReducer({
+                    type: AuthActionType.LOGIN_USER,
+                    payload: {
+                        user: resp.data.user
+                    }
+                })
+                history.push("/");
+                state.loadIdNamePairs();
+            }
+        }
+        catch (err) {
+            console.log(err.resp.status);
         }
     }
 
