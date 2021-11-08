@@ -10,14 +10,16 @@ export const AuthActionType = {
     GET_LOGGED_IN: "GET_LOGGED_IN",
     REGISTER_USER: "REGISTER_USER",
     LOGOUT_USER: "LOGOUT_USER",
-    LOGIN_USER: "LOGIN_USER"
+    LOGIN_USER: "LOGIN_USER",
+    ERROR_MODAL: "ERROR_MODAL",
+    CLOSE_MODAL: "CLOSE_MODAL"
 }
 
 function AuthContextProvider(props) {
     const [auth, setAuth] = useState({
         user: null,
         loggedIn: false,
-        login_error: null
+        loginError: null
     });
     const history = useHistory();
 
@@ -51,6 +53,20 @@ function AuthContextProvider(props) {
                     user: null,
                     loggedIn: false,
                     login_error: false
+                })
+            }
+            case AuthActionType.ERROR_MODAL: {
+                return setAuth({
+                    user: auth.user,
+                    loggedIn: auth.loggedIn,
+                    loginError: payload
+                })
+            }
+            case AuthActionType.CLOSE_MODAL: {
+                return setAuth({
+                    user: auth.user,
+                    loggedIn: auth.loggedIn,
+                    loginError: null
                 })
             }
             default:
@@ -117,6 +133,13 @@ function AuthContextProvider(props) {
         } catch (err){
             console.log(err);
         }
+    }
+
+    auth.closeModal = async function () {
+        authReducer({
+            type: AuthActionType.CLOSE_MODAL,
+            payload: null
+        })
     }
 
     return (
