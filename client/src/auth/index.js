@@ -8,13 +8,16 @@ console.log("create AuthContext: " + AuthContext);
 // THESE ARE ALL THE TYPES OF UPDATES TO OUR AUTH STATE THAT CAN BE PROCESSED
 export const AuthActionType = {
     GET_LOGGED_IN: "GET_LOGGED_IN",
-    REGISTER_USER: "REGISTER_USER"
+    REGISTER_USER: "REGISTER_USER",
+    LOGOUT_USER: "LOGOUT_USER",
+    LOGIN_USER: "LOGIN_USER"
 }
 
 function AuthContextProvider(props) {
     const [auth, setAuth] = useState({
         user: null,
-        loggedIn: false
+        loggedIn: false,
+        login_error: null
     });
     const history = useHistory();
 
@@ -35,6 +38,13 @@ function AuthContextProvider(props) {
                 return setAuth({
                     user: payload.user,
                     loggedIn: true
+                })
+            }
+            case AuthActionType.LOGOUT_USER: {
+                return setAuth({
+                    user: null,
+                    loggedIn: false,
+                    login_error: false
                 })
             }
             default:
@@ -66,6 +76,17 @@ function AuthContextProvider(props) {
             })
             history.push("/");
             store.loadIdNamePairs();
+        }
+    }
+
+    auth.logoutUser = async function () {
+        const resp = await api.logoutUser();
+        if (resp.status === 200) {
+            authReducer({
+                type: AuthActionType.LOGOUT_USER,
+                payload: null
+            })
+            history.push("/");
         }
     }
 
