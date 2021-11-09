@@ -15,6 +15,8 @@ function Top5Item(props) {
     const { store } = useContext(GlobalStoreContext);
     const [editActive, setEditActive] = useState(false);
     const [draggedTo, setDraggedTo] = useState(0);
+    const [text, setText] = useState(props.text);
+    let { index } = props;
 
     function handleDragStart(event, targetId) {
         event.dataTransfer.setData("item", targetId);
@@ -48,14 +50,41 @@ function Top5Item(props) {
         store.addMoveItemTransaction(sourceId, targetId);
     }
 
-    let { index } = props;
+    function toggleEditActive(event) {
+        event.stopPropagation();
+        console.log("We do be editing now");
+        toggleEdit();
+    }
+
+    function toggleEdit() {
+        let newActive = !editActive;
+        if (newActive) {
+            store.setIsItemEditActive();
+        }
+        setEditActive(newActive);
+    }
+
+    function handleKeyPress(event) {
+        if (event.code === "Enter") {
+            handleBlur();
+        }
+    }
+
+    function update(event) {
+        setText(event.target.value);
+    }
+
+    function handleBlur() {
+        store.addUpdateItemTransaction(index, text);
+        toggleEdit();
+    }
 
     let itemClass = "top5-item";
     if (draggedTo) {
         itemClass = "top5-item-dragged-to";
     }
 
-    return (
+    let itemCard = 
             <ListItem
                 id={'item-' + (index+1)}
                 key={props.key}
@@ -83,12 +112,33 @@ function Top5Item(props) {
                 }}
             >
             <Box sx={{ p: 1 }}>
-                <IconButton aria-label='edit'>
-                    <EditIcon style={{fontSize:'48pt'}}  />
+                <IconButton onClick = {toggleEditActive} aria-label='edit'>
+                    <EditIcon style={{fontSize:'48pt'}} />
                 </IconButton>
             </Box>
                 <Box sx={{ p: 1, flexGrow: 1 }}>{props.text}</Box>
-            </ListItem>
+            </ListItem>;
+    if (editActive) {
+        itemCard = 
+        <TextField
+            margin = "normal"
+            required
+            fullWidth
+            id = {"item-" + (index + 1)}
+            label = "Top 5 Item"
+            name = "name"
+            className = "top5-item"
+            onKeyPress = {handleKeyPress}
+            onChange = {update}
+            defaultValue = {props.text}
+            inputProps={{ style: { fontSize: 48 } }}
+            InputLabelProps={{ style: { fontSize: 24 } }}
+            onBlur = {handleBlur}
+            autoFocus
+        />
+    }
+    return (
+        itemCard
     )
 }
 
