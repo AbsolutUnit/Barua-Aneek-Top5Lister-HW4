@@ -16,12 +16,15 @@ function EditToolbar() {
 
     function handleUndo() {
         store.undo();
+        store.updateToolbar();
     }
     function handleRedo() {
         store.redo();
+        store.updateToolbar();
     }
     function handleClose() {
         store.closeCurrentList();
+        store.updateToolbar();
     }
     let editStatus = false;
     if (store.isListNameEditActive) {
@@ -32,18 +35,20 @@ function EditToolbar() {
             <Button 
                 id='undo-button'
                 onClick={handleUndo}
+                className = "top5-button-disabled"
                 variant="contained">
                     <UndoIcon />
             </Button>
             <Button 
                 id='redo-button'
                 onClick={handleRedo}
+                className = "top5-button-disabled"
                 variant="contained">
                     <RedoIcon />
             </Button>
             <Button 
-                disabled={editStatus}
                 id='close-button'
+                disabled = {editStatus}
                 onClick={handleClose}
                 variant="contained">
                     <CloseIcon />

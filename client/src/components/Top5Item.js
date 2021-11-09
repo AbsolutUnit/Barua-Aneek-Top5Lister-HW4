@@ -17,6 +17,7 @@ function Top5Item(props) {
     const [draggedTo, setDraggedTo] = useState(0);
     const [text, setText] = useState(props.text);
     let { index } = props;
+    const oldText = text;
 
     function handleDragStart(event, targetId) {
         event.dataTransfer.setData("item", targetId);
@@ -59,7 +60,12 @@ function Top5Item(props) {
     function toggleEdit() {
         let newActive = !editActive;
         if (newActive) {
+            document.getElementById("close-button").classList.remove("top5-button");
+            document.getElementById("close-button").classList.add("top5-button-disabled");
             store.setIsItemEditActive();
+        } else {
+            document.getElementById("close-button").classList.remove("top5-button-disabled");
+            document.getElementById("close-button").classList.add("top5-button");
         }
         setEditActive(newActive);
     }
@@ -75,7 +81,9 @@ function Top5Item(props) {
     }
 
     function handleBlur() {
-        store.addUpdateItemTransaction(index, text);
+        if (oldText !== text){
+            store.addUpdateItemTransaction(index, text);
+        }
         toggleEdit();
     }
 

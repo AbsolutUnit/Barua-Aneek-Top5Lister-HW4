@@ -167,28 +167,30 @@ function GlobalStoreContextProvider(props) {
         let response = await api.getTop5ListById(id);
         if (response.data.success) {
             let top5List = response.data.top5List;
-            top5List.name = newName;
-            async function updateList(top5List) {
-                response = await api.updateTop5ListById(top5List._id, top5List);
-                if (response.data.success) {
-                    async function getListPairs(top5List) {
-                        const email = auth.user.email;
-                        response = await api.getTop5ListPairs(email);
-                        if (response.data.success) {
-                            let pairsArray = response.data.idNamePairs;
-                            storeReducer({
-                                type: GlobalStoreActionType.CHANGE_LIST_NAME,
-                                payload: {
-                                    idNamePairs: pairsArray,
-                                    top5List: top5List
-                                }
-                            });
+            if (top5List.owner === auth.user.email){
+                top5List.name = newName;
+                async function updateList(top5List) {
+                    response = await api.updateTop5ListById(top5List._id, top5List);
+                    if (response.data.success) {
+                        async function getListPairs(top5List) {
+                            const email = auth.user.email;
+                            response = await api.getTop5ListPairs(email);
+                            if (response.data.success) {
+                                let pairsArray = response.data.idNamePairs;
+                                storeReducer({
+                                    type: GlobalStoreActionType.CHANGE_LIST_NAME,
+                                    payload: {
+                                        idNamePairs: pairsArray,
+                                        top5List: top5List
+                                    }
+                                });
+                            }
                         }
+                        getListPairs(top5List);
                     }
-                    getListPairs(top5List);
                 }
+                updateList(top5List);
             }
-            updateList(top5List);
         }
     }
 
@@ -199,8 +201,9 @@ function GlobalStoreContextProvider(props) {
             payload: {}
         });
         
-        tps.clearAllTransactions();
         history.push("/");
+        tps.clearAllTransactions();
+        store.updateToolbar();
     }
 
     // THIS FUNCTION CREATES A NEW LIST
@@ -227,6 +230,7 @@ function GlobalStoreContextProvider(props) {
         else {
             console.log("API FAILED TO CREATE A NEW LIST");
         }
+        store.updateToolbar();
     }
 
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
@@ -254,10 +258,12 @@ function GlobalStoreContextProvider(props) {
         let response = await api.getTop5ListById(id);
         if (response.data.success) {
             let top5List = response.data.top5List;
-            storeReducer({
-                type: GlobalStoreActionType.MARK_LIST_FOR_DELETION,
-                payload: top5List
-            });
+            if (top5List.owner === auth.user.email){
+                storeReducer({
+                    type: GlobalStoreActionType.MARK_LIST_FOR_DELETION,
+                    payload: top5List
+                });
+            }
         }
     }
 
@@ -270,7 +276,9 @@ function GlobalStoreContextProvider(props) {
     }
 
     store.deleteMarkedList = function () {
-        store.deleteList(store.listMarkedForDeletion);
+        if (store.listMarkedForDeletion.owner === auth.user.email){
+            store.deleteList(store.listMarkedForDeletion);
+        }
     }
 
     store.unmarkListForDeletion = function () {
@@ -288,27 +296,31 @@ function GlobalStoreContextProvider(props) {
         let response = await api.getTop5ListById(id);
         if (response.data.success) {
             let top5List = response.data.top5List;
-
-            response = await api.updateTop5ListById(top5List._id, top5List);
-            if (response.data.success) {
-                storeReducer({
-                    type: GlobalStoreActionType.SET_CURRENT_LIST,
-                    payload: top5List
-                });
-                history.push("/top5list/" + top5List._id);
+            if (top5List.owner === auth.user.email){
+                response = await api.updateTop5ListById(top5List._id, top5List);
+                if (response.data.success) {
+                    storeReducer({
+                        type: GlobalStoreActionType.SET_CURRENT_LIST,
+                        payload: top5List
+                    });
+                    history.push("/top5list/" + top5List._id);
+                }
             }
         }
+        store.updateToolbar();
     }
 
     store.addMoveItemTransaction = function (start, end) {
         let transaction = new MoveItem_Transaction(store, start, end);
         tps.addTransaction(transaction);
+        store.updateToolbar();
     }
 
     store.addUpdateItemTransaction = function (index, newText) {
         let oldText = store.currentList.items[index];
         let transaction = new UpdateItem_Transaction(store, index, oldText, newText);
         tps.addTransaction(transaction);
+        store.updateToolbar();
     }
 
     store.moveItem = function (start, end) {
@@ -350,10 +362,12 @@ function GlobalStoreContextProvider(props) {
 
     store.undo = function () {
         tps.undoTransaction();
+        store.updateToolbar();
     }
 
     store.redo = function () {
         tps.doTransaction();
+        store.updateToolbar();
     }
 
     store.canUndo = function() {
@@ -378,6 +392,23 @@ function GlobalStoreContextProvider(props) {
             type: GlobalStoreActionType.SET_ITEM_EDIT_ACTIVE,
             payload: null
         });
+    }
+
+    store.updateToolbar = function () {
+        if (!tps.hasTransactionToUndo()) {
+            document.getElementById("undo-button").classList.remove("top5-button");
+            document.getElementById("undo-button").classList.add("top5-button-disabled");
+        } else {
+            document.getElementById("undo-button").classList.remove("top5-button-disabled");
+            document.getElementById("undo-button").classList.add("top5-button");
+        }
+        if (!tps.hasTransactionToRedo()) {
+            document.getElementById("redo-button").classList.remove("top5-button");
+            document.getElementById("redo-button").classList.add("top5-button-disabled");
+        } else {
+            document.getElementById("redo-button").classList.remove("top5-button-disabled");
+            document.getElementById("redo-button").classList.add("top5-button");
+        }
     }
 
     return (
