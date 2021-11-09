@@ -50,6 +50,7 @@ function ListCard(props) {
             let id = event.target.id.substring("list-".length);
             store.changeListName(id, text);
             toggleEdit();
+            store.closeCurrentList();
         }
     }
     function handleUpdateText(event) {
@@ -85,6 +86,7 @@ function ListCard(props) {
                     </IconButton>
                 </Box>
         </ListItem>
+        
 
     if (editActive) {
         cardElement =
