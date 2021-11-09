@@ -13,6 +13,7 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
+import ErrorModal from './ErrorModal'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { GlobalStoreContext } from '../store'
 
@@ -99,6 +100,7 @@ export default function LoginScreen() {
                             >
                                 Sign In
                             </Button>
+                            <ErrorModal></ErrorModal>
                             <Grid container>
                                 <Grid item xs>
                                     <Link href="#" variant="body2">

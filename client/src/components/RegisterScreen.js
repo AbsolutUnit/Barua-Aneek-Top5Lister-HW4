@@ -9,6 +9,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
+import ErrorModal from './ErrorModal';
 import Typography from '@mui/material/Typography';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { GlobalStoreContext } from '../store'
@@ -110,6 +111,7 @@ export default function RegisterScreen() {
                         >
                             Sign Up
                         </Button>
+                        <ErrorModal></ErrorModal>
                         <Grid container justifyContent="flex-end">
                             <Grid item>
                                 <Link href="/login/" variant="body2">

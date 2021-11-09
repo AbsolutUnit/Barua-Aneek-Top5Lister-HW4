@@ -324,6 +324,11 @@ input {
   margin-top: 1rem;
 }
 
+.modal_button_pos {
+  margin-top: 20px;
+  text-align: center;
+}
+
 .modal-control {
   cursor: pointer;
   width: 20%;
