@@ -187,7 +187,6 @@ function GlobalStoreContextProvider(props) {
                     getListPairs(top5List);
                 }
             }
-            store.closeCurrentList();
             updateList(top5List);
         }
     }
